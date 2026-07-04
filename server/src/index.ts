@@ -14,9 +14,28 @@ import { seedContentIfEmpty } from "./seed/seedContent.js";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 4000);
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5173";
 
-app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
+// CLIENT_ORIGIN may be a single URL or a comma-separated list (useful while
+// a Vercel preview domain, the production Vercel domain, and a custom domain
+// all need to be allowed at the same time).
+const allowedOrigins = (process.env.CLIENT_ORIGIN ?? "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow requests with no Origin header (curl, server-to-server health checks).
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} is not allowed by CORS`));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "2mb" }));
 
 app.get("/api/health", (_req, res) => {
