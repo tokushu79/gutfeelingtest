@@ -6,13 +6,10 @@ import type { Subject, Quiz, Question, Choice } from "../types/index.js";
 
 /**
  * Populates subjects/quizzes/questions from the built-in content set, but
- * only if the subjects collection is currently empty. Safe to call on every
- * server boot — it's a no-op once real data exists. This exists so hosts
- * with ephemeral/non-persistent disks (e.g. a free-tier PaaS restart wiping
- * server/data/*.json) recover the standard quiz content automatically
- * instead of coming back up with an empty site. Player-submitted data
- * (attempts, leaderboards, custom admin edits) cannot be recovered this way —
- * only a real persistent disk or external database prevents that loss.
+ * only if the subjects table is currently empty. Safe to call on every
+ * server boot — it's a no-op once real data exists. Mainly useful the very
+ * first time this connects to a brand-new, empty Postgres database (e.g.
+ * a fresh Neon project), so the site never comes up with an empty catalog.
  */
 export async function seedContentIfEmpty(): Promise<boolean> {
   const existingSubjects = await subjects.all();

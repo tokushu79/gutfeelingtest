@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Timestamps are stored as ISO-8601 strings (not native DateTime) so the
+// Prisma client's TypeScript types line up exactly with the existing
+// application types (Subject.createdAt: string, etc.) without touching
+// every service file that reads/writes/compares these fields as strings.
+
+model Subject {
+  id          String @id
+  slug        String @unique
+  name        String
+  description String
+  icon        String
+  color       String
+  order       Int
+  createdAt   String
+  updatedAt   String
+
+  @@map("subjects")
+}
+
+model Quiz {
+  id          String @id
+  subjectId   String
+  slug        String
+  title       String
+  description String
+  order       Int
+  createdAt   String
+  updatedAt   String
+
+  @@index([subjectId])
+  @@map("quizzes")
+}
+
+model Question {
+  id              String @id
+  quizId          String
+  text            String
+  choices         Json
+  correctChoiceId String
+  order           Int
+  createdAt       String
+  updatedAt       String
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+model Player {
+  id            String @id
+  nickname      String
+  nicknameLower String @unique
+  createdAt     String
+  lastSeenAt    String
+
+  @@map("players")
+}
+
+model Attempt {
+  id             String @id
+  playerId       String
+  nickname       String
+  quizId         String
+  subjectId      String
+  score          Int
+  totalQuestions Int
+  timeMs         Int
+  answers        Json
+  completedAt    String
+
+  @@index([quizId])
+  @@index([subjectId])
+  @@map("attempts")
+}
+
+model DailyQuestion {
+  id              String @id
+  date            String @unique
+  text            String
+  choices         Json
+  correctChoiceId String
+  source          String
+  createdAt       String
+
+  @@map("daily_questions")
+}
+
+model DailySubmission {
+  id          String @id
+  date        String
+  playerId    String
+  nickname    String
+  correct     Boolean
+  timeMs      Int
+  submittedAt String
+
+  @@index([date])
+  @@map("daily_submissions")
+}
+
+model AdminUser {
+  id           String @id
+  username     String @unique
+  passwordHash String
+  createdAt    String
+
+  @@map("admins")
+}

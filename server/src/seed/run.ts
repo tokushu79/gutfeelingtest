@@ -5,8 +5,8 @@ import { ensureSeedAdmin } from "../services/authService.js";
 async function seed() {
   const created = await seedContentIfEmpty();
   if (!created) {
-    console.log("[seed] Subjects already exist — skipping content seed (data/ already populated).");
-    console.log("[seed] Delete the server/data/*.json files if you want to reseed from scratch.");
+    console.log("[seed] Subjects already exist in the database — skipping content seed.");
+    console.log("[seed] Truncate the subjects/quizzes/questions tables if you want to reseed from scratch.");
   }
 
   await ensureSeedAdmin();
